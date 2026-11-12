@@ -1,0 +1,7 @@
+{% extends "base.html" %}
+{% block title %}Product not found | Tem Shop{% endblock %}
+{% block content %}
+<main class="page-main">
+  <div class="empty-state"><h1>We couldn't find that product.</h1><p>It may have moved or sold out.</p><a href="{{ url_for('home') }}">Back to the collection</a></div>
+</main>
+{% endblock %}

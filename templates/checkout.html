@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block title %}Checkout | Tem Shop{% endblock %}
+{% block content %}
+<main class="page-main">
+  <section class="page-heading"><p class="eyebrow">ALMOST YOURS</p><h1>Checkout</h1></section>
+  <div class="checkout-layout">
+    <form class="form-card checkout-form" method="post" action="{{ url_for('checkout_post') }}">
+      <h2>Delivery</h2>
+      <label>Shipping address<input name="shipping_address" value="{{ customer.address }}" autocomplete="street-address" maxlength="250" required></label>
+      <h2>Payment</h2>
+      <label>Payment method<select name="payment_method" id="payment-method"><option value="credit">Credit card (demo)</option><option value="cash">Cash on delivery</option></select></label>
+      <div id="credit-fields">
+        <label>Cardholder name<input name="card_holder_name" autocomplete="cc-name" maxlength="120"></label>
+        <label>Card number<input name="card_number" inputmode="numeric" autocomplete="cc-number" maxlength="23" placeholder="13–19 digits"></label>
+        <p class="form-note">Demo only: no payment processor is connected. Only the masked number is stored.</p>
+      </div>
+      <div id="cash-fields" hidden><label>Cash to be received ($)<input type="number" name="cash_received" min="{{ '%.2f'|format(cart.total) }}" step="0.01" value="{{ '%.2f'|format(cart.total) }}"></label></div>
+      <button class="submit-button" type="submit">Place order · ${{ '%.2f'|format(cart.total) }}</button>
+    </form>
+    <aside class="summary-card"><h2>Your order</h2>{% for item in cart["items"] %}<p><span>{{ item.name }} × {{ item.quantity }}</span><strong>${{ '%.2f'|format(item.line_total) }}</strong></p>{% endfor %}<p class="summary-total"><span>Total</span><strong>${{ '%.2f'|format(cart.total) }}</strong></p></aside>
+  </div>
+</main>
+{% endblock %}

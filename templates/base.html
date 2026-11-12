@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f4f2eb">
+  <title>{% block title %}Tem Shop{% endblock %}</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <script src="{{ url_for('static', filename='app.js') }}" defer></script>
+</head>
+<body>
+  <header class="topbar">
+    <a class="wordmark" href="{{ url_for('home') }}" aria-label="Tem Shop home"><img class="mark" src="{{ url_for('static', filename='assets/temmie.png') }}" alt=""> Tem Shop</a>
+    <nav class="site-nav" aria-label="Main navigation">
+      <a href="{{ url_for('home') }}">Shop</a>
+      {% if current_customer %}
+        <a href="{{ url_for('orders') }}">Orders</a>
+        {% if current_customer.is_admin %}<a href="{{ url_for('admin') }}">Admin</a>{% endif %}
+        <a class="bag-count" href="{{ url_for('cart') }}">CART <span>{{ cart_count }}</span></a>
+        <form action="{{ url_for('logout') }}" method="post"><button class="nav-button" type="submit">Log out</button></form>
+      {% else %}
+        <a href="{{ url_for('login') }}">Log in</a>
+        <a href="{{ url_for('register') }}">Create account</a>
+      {% endif %}
+    </nav>
+  </header>
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      <div class="flash-list" role="status">
+        {% for category, message in messages %}
+          <p class="flash {{ category }}">{{ message }}</p>
+        {% endfor %}
+      </div>
+    {% endif %}
+  {% endwith %}
+  {% block content %}{% endblock %}
+  <footer class="footer"><a class="wordmark" href="{{ url_for('home') }}"><img class="mark" src="{{ url_for('static', filename='assets/temmie.png') }}" alt=""> Tem Shop</a><p>A small collection of useful things.</p><span>LOCAL SHOP DEMO · 2026</span></footer>
+</body>
+</html>

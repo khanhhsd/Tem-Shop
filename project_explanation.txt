@@ -1,0 +1,37 @@
+Tem Shop is a local Flask and SQLite e-commerce application organized in three layers.
+
+Architecture
+------------
+Presentation: Flask routes in main.py and Jinja templates in templates/.
+Routes delegate user-facing operations to application services.
+
+Application: application/ contains authentication, catalog search and ranking,
+browser-transcript voice search, image feature extraction, cart operations,
+checkout, and admin services.
+
+Data: data/ contains the SQLite schema, startup seeding, and repositories for
+customers, products, categories, carts, orders, and search history. Uploaded
+images are stored locally under static/uploads/.
+
+The database schema is data/schema.sql. On first startup, data/database.py
+creates four categories, imports the 23 product records in products.json, and
+creates a hashed-password local admin account. SQLite is the only database
+engine; no server installation is needed.
+
+Implemented workflows
+---------------------
+- Account registration/login with hashed passwords and signed Flask sessions.
+- Product browsing, keyword ranking, category and price filters, and stock
+  visibility.
+- Browser Web Speech API voice search. The recognized transcript is sent
+  through QueryService and saved in search history.
+- Image upload and 12-bin RGB histogram similarity against product images.
+- Customer-specific cart operations and stock validation.
+- Atomic checkout for order, order items, payment, shipping, inventory changes,
+  and cart clearing. Credit-card storage is masked and payment processing is
+  not connected to an external provider.
+- Customer order/search history and a local admin page for catalog/stock edits.
+
+Start the app with `python main.py` and open http://localhost:8080. Install
+requirements first using `python -m pip install -r requirements.txt`. Run the
+test suite with `python -m unittest discover -s tests -v`.

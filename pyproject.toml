@@ -1,0 +1,22 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "tem-shop"
+version = "0.1.0"
+description = "Tem Shop local e-commerce demo"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "Flask>=3.0,<4.0",
+    "Pillow>=10.0,<12.0",
+]
+
+[project.scripts]
+tem-shop = "shop.cli:main"
+
+[tool.setuptools]
+py-modules = ["main"]
+packages = ["application", "data", "shop"]
+include-package-data = true

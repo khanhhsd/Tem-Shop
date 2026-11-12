@@ -1,0 +1,1179 @@
+Assignment 06
+Multimodal Search System for E-Commerce
+Submit V01: TODAY
+Before 16:00 (For class 03) and Before 19:00 (For class 04)
+Submit V02: Before 23:00 Wednesday (07/10)
+
+Information System Analysis and Design
+
+
+Assignment Overview
+Modern e-commerce systems allow customers to search for products, orders, and other infor-mation using different interaction modes. A customer may enter a keyword, speak a natural-language query, or upload an image of a product.
+The objective of this assignment is to design and implement a small prototype of a multi-modal e-commerce search system.
+The assignment connects four important topics:
+
+software requirements analysis;
+three-layer software architecture;
+UML modeling using Visual Paradigm;
+Python implementation of a search prototype.
+
+The system should support at least the following search modes:
+
+keyword/text search;
+voice search simulated by speech-to-text output;
+image-based product search.
+
+The central design principle is:
+
+Different Inputs −→ Common Query Representation −→ Retrieval −→ Ranking −→ Results.
+(1)
+The assignment does not require a production e-commerce system. The objective is to demonstrate the relationship between system design, UML modeling, and an executable AI-oriented prototype.
+
+Learning Objectives
+After completing this assignment, students should be able to:
+
+identify functional requirements of an e-commerce search system;
+identify actors and use cases;
+
+design a three-layer software architecture;
+construct UML diagrams using Visual Paradigm;
+distinguish the presentation, application, and data layers;
+design a common interface for text, voice, and image search;
+implement a simple product-search service in Python;
+implement a basic image-similarity search prototype;
+explain how AI components can be incorporated into a conventional software architecture.
+
+Problem Statement
+Consider an online shopping system containing products, customers, and orders.
+A customer may want to perform queries such as:
+
+“black running shoes”;
+“find Nike shoes under 100 dollars”;
+“show me products similar to this image”;
+“find my order 20261001”;
+“where is my latest order?”
+
+The system should accept different forms of input.
+
+Table 1: Supported search modalities
+ModeInputProcessing
+
+TextKeyword or natural languageText normalization and retrieval VoiceAudio querySpeech-to-text followed by text re-
+trieval
+ImageProduct photographImage representation followed by
+similarity search
+
+
+For the prototype, students may simulate speech recognition by providing the transcribed text directly.
+
+System Architecture
+The proposed system uses three layers:
+
+Presentation Layer;
+Application / Intelligence Layer;
+Data Layer.
+
+The architecture is:
+
+++
+|PRESENTATION LAYER|
+||
+|Search UIVoice InputImage Upload|
++-------------------------++
+| v
+++
+|APPLICATION / INTELLIGENCE|
+||
+|Query Service|
+|Speech Service|
+|Image Service|
+|Search Service|
+|Ranking Service|
++-------------------------++
+| v
+++
+|DATA LAYER|
+||
+| Product DatabaseOrder DatabaseVector Index|
+| Image Storage|
+++
+
+The three layers have different responsibilities.
+
+Table 2: Responsibilities of the three layers
+LayerResponsibility
+
+PresentationCollect user input and display search results.
+Application / Intelli-Interpret queries, convert modalities, retrieve candidates, filter gencecandidates, and rank results.
+DataStore products, orders, images, metadata, and vector representa-tions.
+
+Layer 1: Presentation Layer
+The Presentation Layer provides interaction between the customer and the system.
+The main components are:
+
+SearchUI;
+VoiceInput;
+ImageUpload;
+SearchResultView.
+
+A simplified interaction is:
+
+Customer
+
+|
++---- Text / Keyword
+|
++Voice
+|
++Image
+| v
+Search UI
+| v
+Application Layer
+
+The Presentation Layer should not directly access the database. For example, the following design should be avoided:
+SearchUI --> ProductDatabase
+
+Instead:
+
+SearchUI
+| v
+SearchService
+| v
+ProductRepository
+| v
+ProductDatabase
+
+This separation makes the system easier to maintain and extend.
+
+Layer 2: Application and Intelligence Layer
+The Application Layer contains the main system logic.
+A recommended design is:
+
+++
+| Application / Intelligence Layer|
+||
+| QueryService|
+| SpeechService|
+| ImageService|
+| SearchService|
+| RankingService|
+++
+
+Query Service
+The Query Service converts different input types into a common query representation.
+Let
+
+qt
+denote a text query,
+
+qv
+a voice query, and
+
+
+
+an image query.
+The system performs
+qi
+
+
+
+
+qt '→ zt,qv '→ zv,qi '→ zi,(2)
+
+where zt, zv, and zi are representations used by the retrieval system.
+For the simple prototype, the representation may be a Python dictionary.
+{"type": "text","query": "black running shoes"}{"type": "text","query": "black running shoes"}
+{
+"type": "text",
+"query": "black running shoes"
+}
+{
+"type": "text",
+"query": "black running shoes"
+}
+
+Voice Service
+The voice-search pipeline is:
+
+Microphone
+| v Audio
+| v
+Speech-to-Text
+| v
+Text Query
+| v
+Search Service
+
+For the first prototype, students may simulate the speech-to-text component:
+voice_text = "find black running shoes"query = {"type": "voice", "query": voice_text}voice_text = "find black running shoes"query = {"type": "voice", "query": voice_text}
+voice_text = "find black running shoes"
+
+query = {
+"type": "voice", "query": voice_text
+}
+voice_text = "find black running shoes"
+
+query = {
+"type": "voice", "query": voice_text
+}
+Students who want to extend the project may replace the simulated component with an actual speech-recognition system.
+
+Image Service
+Image search uses an image representation.
+Let
+
+fθ(I)
+denote an image encoder, where I is an input image and fθ(I) is its feature vector. For an image query Iq,
+
+zq = fθ(Iq).(3)
+Each product image has an embedding
+
+zp = fθ(Ip).
+A simple similarity measure is cosine similarity:
+  z zp  z zpT
+  z zp
+  z zp
+s(Iq, Ip) =q .(4)
+∥zq∥ ∥zp∥
+Products with larger similarity values are returned first.
+
+Search Service
+The Search Service retrieves candidate products.
+For a text query, a simple prototype can use keyword matching. For an image query, it can use vector similarity.
+The general retrieval operation is
+
+R(q) = TopKx∈X s(q, x),(5)
+where X is the product collection.
+
+Ranking Service
+After retrieval, the system may rank candidates using several signals.
+For example,
+
+S(x|q) = αStext + βSimage + γSbusiness.(6)
+Here:
+
+Stext measures textual similarity;
+Simage measures visual similarity;
+Sbusiness may consider price, stock, popularity, or other application-specific information.
+For Assignment 05, students only need to implement a simple ranking mechanism.
+
+Layer 3: Data Layer
+The Data Layer stores the information used by the system.
+A minimal system contains:
+Product Database Order Database Image Storage Vector Index
+A simplified Product entity is:
+Product
+
+product_id name category color  price stock
+description image embedding
+A simplified Order entity is:
+Order
+
+order_id customer_id date
+status total
+An OrderItem entity may contain:
+OrderItem
+
+order_id product_id quantity price
+
+Visual Paradigm Modeling
+Students must use Visual Paradigm to construct at least three UML diagrams.
+
+Diagram 1: Use Case Diagram
+Create an actor:
+Customer
+The main use cases are:
+
+Search Product;
+Search by Keyword;
+Search by Voice;
+Search by Image;
+Search Order;
+View Product;
+View Order.
+A simplified structure is:
+Customer
+|
++--------------++
+|||
+vvv
+Search  KeywordSearch by VoiceSearch by Image
+|||
++--------------++
+| v
+Search Product
+The student should create the diagram using UML notation rather than simply drawing rectangles.
+
+Diagram 2: Three-Layer Component Diagram
+Create three packages:
+Presentation Layer;
+Application / Intelligence Layer;
+Data Layer.
+Recommended components are:
+Presentation:
+SearchUI VoiceInput ImageUpload SearchResultView
+
+Application:
+QueryService SpeechService ImageService SearchService RankingService
+
+Data:
+ProductRepository OrderRepository VectorIndex ProductDatabase OrderDatabase ImageStorage
+The dependencies should follow:
+
+Presentation → Application → Data.(7) Avoid direct dependencies from Presentation to Data.
+Diagram 3: Sequence Diagram
+Create a sequence diagram for voice search.
+The recommended participants are:
+
+Customer SearchUI SpeechService QueryService SearchService
+ProductRepository RankingService
+The sequence is:
+
+Customer provides voice input.
+SearchUI sends audio to SpeechService.
+SpeechService returns text.
+QueryService constructs a query representation.
+SearchService retrieves products.
+ProductRepository accesses product data.
+RankingService ranks candidates.
+SearchUI displays the results.
+
+Python Prototype
+The Python prototype should mirror the architecture created in Visual Paradigm.
+The recommended directory structure is:
+
+assignment05/
+|
++-- main.py
+|
++-- presentation/
+
+|+-- search_ui.py
+|
++-- application/
+|+-- query_service.py
+|+-- speech_service.py
+|+-- image_service.py
+|+-- search_service.py
+|+-- ranking_service.py
+|
++-- data/
+|+-- product_repository.py
+|+-- order_repository.py
+|+-- vector_index.py
+|
++-- data/
++-- products.json
++-- images/
+
+Step 1: Product Repository
+Create the file:
+data/product_repository.py
+Use the following example:
+class ProductRepository:def  init (self): self.products = [{"id": 1,"name": "Nike Running Shoes", "category": "shoes","color": "black", "price": 120,"stock":  10},{"id": 2,"name": "Adidas Running Shoes", "category": "shoes","color": "white", "price": 100,"stock":  15},{"id": 3,"name": "Black Leather Bag", "category": "bag","color": "black", "price": 80,"stock":  20},{class ProductRepository:def  init (self): self.products = [{"id": 1,"name": "Nike Running Shoes", "category": "shoes","color": "black", "price": 120,"stock":  10},{"id": 2,"name": "Adidas Running Shoes", "category": "shoes","color": "white", "price": 100,"stock":  15},{"id": 3,"name": "Black Leather Bag", "category": "bag","color": "black", "price": 80,"stock":  20},{
+class ProductRepository:
+def  init (self): self.products = [
+{
+"id": 1,
+"name": "Nike Running Shoes", "category": "shoes",
+"color": "black", "price": 120,
+"stock":  10
+},
+{
+"id": 2,
+"name": "Adidas Running Shoes", "category": "shoes",
+"color": "white", "price": 100,
+"stock":  15
+},
+{
+"id": 3,
+"name": "Black Leather Bag", "category": "bag",
+"color": "black", "price": 80,
+"stock":  20
+},
+{
+class ProductRepository:
+def  init (self): self.products = [
+{
+"id": 1,
+"name": "Nike Running Shoes", "category": "shoes",
+"color": "black", "price": 120,
+"stock":  10
+},
+{
+"id": 2,
+"name": "Adidas Running Shoes", "category": "shoes",
+"color": "white", "price": 100,
+"stock":  15
+},
+{
+"id": 3,
+"name": "Black Leather Bag", "category": "bag",
+"color": "black", "price": 80,
+"stock":  20
+},
+{
+
+"id": 4,"name": "Blue Sports Shoes", "category": "shoes","color": "blue", "price": 75,"stock":  12}]def all_products(self):return self.products"id": 4,"name": "Blue Sports Shoes", "category": "shoes","color": "blue", "price": 75,"stock":  12}]def all_products(self):return self.products
+"id": 4,
+"name": "Blue Sports Shoes", "category": "shoes",
+"color": "blue", "price": 75,
+"stock":  12
+}
+]
+
+def all_products(self):
+return self.products
+"id": 4,
+"name": "Blue Sports Shoes", "category": "shoes",
+"color": "blue", "price": 75,
+"stock":  12
+}
+]
+
+def all_products(self):
+return self.products
+Students should add at least ten products.
+
+Step 2: Query Service
+Create:
+
+application/query_service.py
+class QueryService:def text_query(self, text):return {"type": "text", "query": text}def voice_query(self, text):return {"type": "voice", "query": text}def image_query(self, embedding):return {"type": "image", "embedding": embedding}class QueryService:def text_query(self, text):return {"type": "text", "query": text}def voice_query(self, text):return {"type": "voice", "query": text}def image_query(self, embedding):return {"type": "image", "embedding": embedding}
+class QueryService:
+
+def text_query(self, text):
+
+return {
+"type": "text", "query": text
+}
+
+def voice_query(self, text):
+
+return {
+"type": "voice", "query": text
+}
+
+def image_query(self, embedding):
+
+return {
+"type": "image", "embedding": embedding
+}
+class QueryService:
+
+def text_query(self, text):
+
+return {
+"type": "text", "query": text
+}
+
+def voice_query(self, text):
+
+return {
+"type": "voice", "query": text
+}
+
+def image_query(self, embedding):
+
+return {
+"type": "image", "embedding": embedding
+}
+The important architectural idea is that all modalities are converted into a common query object.
+
+Step 3: Text Search
+Create:
+
+application/search_service.py
+class SearchService:def   init  (self, repository):class SearchService:def   init  (self, repository):
+class SearchService:
+
+def   init  (self, repository):
+class SearchService:
+
+def   init  (self, repository):
+
+self.repository  =  repositorydef search_text(self, query): query = query.lower() results = []for product in self.repository.all_products():text = (product["name"] + " " + product["category"] + " " + product["color"]).lower()words = query.split() score = 0for word in words:if word in text: score += 1if score > 0:results.append( (product, score))results.sort( key=lambda x: x[1], reverse=True)return resultsself.repository  =  repositorydef search_text(self, query): query = query.lower() results = []for product in self.repository.all_products():text = (product["name"] + " " + product["category"] + " " + product["color"]).lower()words = query.split() score = 0for word in words:if word in text: score += 1if score > 0:results.append( (product, score))results.sort( key=lambda x: x[1], reverse=True)return results
+self.repository  =  repository
+
+def search_text(self, query): query = query.lower() results = []
+for product in self.repository.all_products():
+
+text = (
+product["name"] + " " + product["category"] + " " + product["color"]
+).lower()
+
+words = query.split() score = 0
+for word in words:
+
+if word in text: score += 1
+
+if score > 0:
+
+results.append( (product, score)
+)
+
+results.sort( key=lambda x: x[1], reverse=True
+)
+
+return results
+self.repository  =  repository
+
+def search_text(self, query): query = query.lower() results = []
+for product in self.repository.all_products():
+
+text = (
+product["name"] + " " + product["category"] + " " + product["color"]
+).lower()
+
+words = query.split() score = 0
+for word in words:
+
+if word in text: score += 1
+
+if score > 0:
+
+results.append( (product, score)
+)
+
+results.sort( key=lambda x: x[1], reverse=True
+)
+
+return results
+This is intentionally simple.
+The purpose is to demonstrate the architecture before introducing more advanced AI models.
+
+Step 4: Voice Search
+For Assignment 05, voice recognition may be simulated.
+Create:
+application/speech_service.py
+class SpeechService:def  transcribe(self,  audio_input):# Prototype:# audio_input is already the transcribed text.return audio_inputclass SpeechService:def  transcribe(self,  audio_input):# Prototype:# audio_input is already the transcribed text.return audio_input
+class SpeechService:
+
+def  transcribe(self,  audio_input):
+
+# Prototype:
+# audio_input is already the transcribed text.
+
+return audio_input
+class SpeechService:
+
+def  transcribe(self,  audio_input):
+
+# Prototype:
+# audio_input is already the transcribed text.
+
+return audio_input
+
+Then:
+speech_service = SpeechService()text = speech_service.transcribe( "find black running shoes")results  =  search_service.search_text(text)speech_service = SpeechService()text = speech_service.transcribe( "find black running shoes")results  =  search_service.search_text(text)
+speech_service = SpeechService()
+
+text = speech_service.transcribe( "find black running shoes"
+)
+
+results  =  search_service.search_text(text)
+speech_service = SpeechService()
+
+text = speech_service.transcribe( "find black running shoes"
+)
+
+results  =  search_service.search_text(text)
+Students should clearly explain in the report that this is a simulation of speech recognition.
+
+Step 5: Image Similarity
+For the first prototype, students may use artificial feature vectors.
+For example:
+import numpy as npproduct_embeddings = {1: np.array([0.9, 0.1, 0.2]),2: np.array([0.2, 0.8, 0.1]),3: np.array([0.1, 0.2, 0.9]),4: np.array([0.8, 0.2, 0.2])}import numpy as npproduct_embeddings = {1: np.array([0.9, 0.1, 0.2]),2: np.array([0.2, 0.8, 0.1]),3: np.array([0.1, 0.2, 0.9]),4: np.array([0.8, 0.2, 0.2])}
+import numpy as np
+
+product_embeddings = {
+1: np.array([0.9, 0.1, 0.2]),
+2: np.array([0.2, 0.8, 0.1]),
+3: np.array([0.1, 0.2, 0.9]),
+4: np.array([0.8, 0.2, 0.2])
+}
+import numpy as np
+
+product_embeddings = {
+1: np.array([0.9, 0.1, 0.2]),
+2: np.array([0.2, 0.8, 0.1]),
+3: np.array([0.1, 0.2, 0.9]),
+4: np.array([0.8, 0.2, 0.2])
+}
+Define cosine similarity:
+def cosine_similarity(a, b):numerator = np.dot(a, b)denominator = ( np.linalg.norm(a) * np.linalg.norm(b))if denominator == 0:return 0.0return numerator / denominatordef cosine_similarity(a, b):numerator = np.dot(a, b)denominator = ( np.linalg.norm(a) * np.linalg.norm(b))if denominator == 0:return 0.0return numerator / denominator
+def cosine_similarity(a, b):
+
+numerator = np.dot(a, b)
+
+denominator = ( np.linalg.norm(a) * np.linalg.norm(b)
+)
+
+if denominator == 0:
+return 0.0
+
+return numerator / denominator
+def cosine_similarity(a, b):
+
+numerator = np.dot(a, b)
+
+denominator = ( np.linalg.norm(a) * np.linalg.norm(b)
+)
+
+if denominator == 0:
+return 0.0
+
+return numerator / denominator
+Image search:
+def search_image(query_embedding,product_embeddings):scores = []for product_id, embedding in \ product_embeddings.items():score = cosine_similarity( query_embedding, embedding)scores.append( (product_id, score)def search_image(query_embedding,product_embeddings):scores = []for product_id, embedding in \ product_embeddings.items():score = cosine_similarity( query_embedding, embedding)scores.append( (product_id, score)
+def search_image(query_embedding,
+product_embeddings):
+
+scores = []
+
+for product_id, embedding in \ product_embeddings.items():
+
+score = cosine_similarity( query_embedding, embedding
+)
+
+scores.append( (product_id, score)
+def search_image(query_embedding,
+product_embeddings):
+
+scores = []
+
+for product_id, embedding in \ product_embeddings.items():
+
+score = cosine_similarity( query_embedding, embedding
+)
+
+scores.append( (product_id, score)
+
+)scores.sort(key=lambda x: x[1], reverse=True)return scores)scores.sort(key=lambda x: x[1], reverse=True)return scores
+)
+
+scores.sort(
+key=lambda x: x[1], reverse=True
+)
+
+return scores
+)
+
+scores.sort(
+key=lambda x: x[1], reverse=True
+)
+
+return scores
+Students may later replace these artificial vectors with embeddings generated by an actual image model.
+
+Step 6: Main Program
+Create:
+
+main.py
+from data.product_repository import ProductRepository from application.query_service import QueryService from application.search_service import SearchService from application.speech_service import SpeechServicerepository = ProductRepository() query_service = QueryService()search_service = SearchService( repository)speech_service = SpeechService()print("=== E-Commerce Search Demo ===")print("\nText search:")query = query_service.text_query( "black shoes")results = search_service.search_text( query["query"])for product, score in results:print(product["name"], "| score =", score)print("\nVoice search:")from data.product_repository import ProductRepository from application.query_service import QueryService from application.search_service import SearchService from application.speech_service import SpeechServicerepository = ProductRepository() query_service = QueryService()search_service = SearchService( repository)speech_service = SpeechService()print("=== E-Commerce Search Demo ===")print("\nText search:")query = query_service.text_query( "black shoes")results = search_service.search_text( query["query"])for product, score in results:print(product["name"], "| score =", score)print("\nVoice search:")
+from data.product_repository import ProductRepository from application.query_service import QueryService from application.search_service import SearchService from application.speech_service import SpeechService
+
+
+repository = ProductRepository() query_service = QueryService()
+search_service = SearchService( repository
+)
+
+speech_service = SpeechService()
+
+
+print("=== E-Commerce Search Demo ===")
+
+print("\nText search:")
+
+query = query_service.text_query( "black shoes"
+)
+
+results = search_service.search_text( query["query"]
+)
+
+for product, score in results:
+
+print(
+product["name"], "| score =", score
+)
+
+
+print("\nVoice search:")
+from data.product_repository import ProductRepository from application.query_service import QueryService from application.search_service import SearchService from application.speech_service import SpeechService
+
+
+repository = ProductRepository() query_service = QueryService()
+search_service = SearchService( repository
+)
+
+speech_service = SpeechService()
+
+
+print("=== E-Commerce Search Demo ===")
+
+print("\nText search:")
+
+query = query_service.text_query( "black shoes"
+)
+
+results = search_service.search_text( query["query"]
+)
+
+for product, score in results:
+
+print(
+product["name"], "| score =", score
+)
+
+
+print("\nVoice search:")
+
+audio = "find running shoes"text = speech_service.transcribe( audio)query = query_service.voice_query( text)results = search_service.search_text( query["query"])for product, score in results:print(product["name"], "| score =", score)audio = "find running shoes"text = speech_service.transcribe( audio)query = query_service.voice_query( text)results = search_service.search_text( query["query"])for product, score in results:print(product["name"], "| score =", score)
+audio = "find running shoes"
+
+text = speech_service.transcribe( audio
+)
+
+query = query_service.voice_query( text
+)
+
+results = search_service.search_text( query["query"]
+)
+
+for product, score in results:
+
+print(
+product["name"], "| score =", score
+)
+audio = "find running shoes"
+
+text = speech_service.transcribe( audio
+)
+
+query = query_service.voice_query( text
+)
+
+results = search_service.search_text( query["query"]
+)
+
+for product, score in results:
+
+print(
+product["name"], "| score =", score
+)
+
+Expected Demonstration
+The program should demonstrate at least two successful search modes.
+For example:
+
+=== E-Commerce Search Demo ===
+
+Text search:
+Nike Running Shoes | score = 2 Blue Sports Shoes| score = 1
+
+Voice search:
+Nike Running Shoes | score = 1 Adidas Running Shoes | score = 1 Blue Sports Shoes | score = 1
+The exact output depends on the student’s product database.
+
+Extension: Multimodal Search
+Students who complete the basic prototype should implement a multimodal query.
+Suppose the customer provides:
+
+a text query;
+an image;
+optionally a voice query.
+
+The system can combine the representations:
+
+
+
+where
+
+
+For example,
+z = λtzt + λizi + λvzv,(8)
+
+
+λt + λi + λv = 1.(9)
+
+
+λt = 0.5,λi = 0.5.
+
+A combined ranking function can be:
+
+S(p|q) = λtSt(p|qt) + λiSi(p|qi).(10) This produces a simple multimodal retrieval system.
+
+Extension: Order Search
+The system should also support order search.
+A simple repository is:
+class OrderRepository:def  init (self): self.orders = [{"order_id": "O001", "customer_id": "C001", "status": "Shipped", "total": 150},{"order_id": "O002", "customer_id": "C002", "status": "Delivered", "total": 80}]def find_order(self, order_id):for order in self.orders:if order["order_id"] == order_id:return orderreturn Noneclass OrderRepository:def  init (self): self.orders = [{"order_id": "O001", "customer_id": "C001", "status": "Shipped", "total": 150},{"order_id": "O002", "customer_id": "C002", "status": "Delivered", "total": 80}]def find_order(self, order_id):for order in self.orders:if order["order_id"] == order_id:return orderreturn None
+class OrderRepository:
+def  init (self): self.orders = [
+{
+"order_id": "O001", "customer_id": "C001", "status": "Shipped", "total": 150
+},
+{
+"order_id": "O002", "customer_id": "C002", "status": "Delivered", "total": 80
+}
+]
+
+def find_order(self, order_id):
+
+for order in self.orders:
+
+if order["order_id"] == order_id:
+return order
+
+return None
+class OrderRepository:
+def  init (self): self.orders = [
+{
+"order_id": "O001", "customer_id": "C001", "status": "Shipped", "total": 150
+},
+{
+"order_id": "O002", "customer_id": "C002", "status": "Delivered", "total": 80
+}
+]
+
+def find_order(self, order_id):
+
+for order in self.orders:
+
+if order["order_id"] == order_id:
+return order
+
+return None
+A customer can therefore ask:
+Find order O001
+and the system returns:
+Order: O001 Status: Shipped Total: 150
+
+Required UML Architecture
+The final UML architecture should conceptually resemble:
+
+CUSTOMER
+| v
+++
+|PRESENTATION LAYER|
+||
+| SearchUI|
+| VoiceInput|
+| ImageUpload|
+| ResultView|
++------------++
+| v
+++
+| APPLICATION / AI LAYER|
+||
+| QueryService|
+| SpeechService|
+| ImageService|
+| SearchService|
+| RankingService|
++------------++
+| v
+++
+|DATA LAYER|
+||
+| ProductRepository|
+| OrderRepository|
+| ProductDatabase|
+| OrderDatabase|
+| VectorIndex|
+| ImageStorage|
+++
+
+Assignment Tasks
+Students must complete the following tasks.
+
+Task 1: Requirements Analysis
+Write a short description of the system.
+Identify:
+
+actors;
+functional requirements;
+non-functional requirements;
+
+input modalities;
+search outputs.
+
+At least five functional requirements are required.
+
+Task 2: Use Case Diagram
+Create a UML Use Case Diagram in Visual Paradigm.
+The diagram must contain:
+
+Customer;
+Search Product;
+Search by Keyword;
+Search by Voice;
+Search by Image;
+Search Order;
+View Product;
+View Order.
+
+Task 3: Three-Layer Architecture
+Create the three-layer component/package diagram.
+Clearly identify:
+
+Presentation Layer;
+Application / Intelligence Layer;
+Data Layer.
+
+The dependencies between layers must be clear.
+
+Task 4: Sequence Diagram
+Create a sequence diagram for:
+
+Customer searches for a product using voice.
+
+The sequence must contain at least:
+
+Customer SearchUI SpeechService QueryService SearchService
+ProductRepository RankingService
+
+Task 5: Python Implementation
+Implement:
+
+product repository;
+text search;
+simulated voice search;
+image-similarity search;
+result ranking.
+
+Task 6: Demonstration
+Demonstrate at least three queries:
+
+text query;
+voice query;
+image query.
+
+For each query, show:
+
+input;
+processing;
+returned products;
+ranking score.
+
+Optional Advanced Work
+Students seeking additional credit may implement one or more of the following:
+
+real speech-to-text;
+real image embeddings;
+vector database;
+semantic text embeddings;
+multimodal fusion;
+product filtering by price;
+product filtering by category;
+stock-aware ranking;
+order-status search;
+a web-based user interface.
+
+A possible advanced architecture is:
+
+Text+
+|
+Voice --> Speech ------+--> Multimodal Query
+||
+Image --> Encoder -----+v
+|
+Candidate Retrieval
+|
+Filtering  /  Ranking
+|
+Top-k Products
+
+Experimental Evaluation
+Students should evaluate the prototype using a small test set.
+For example:
+
+Table 3: Example evaluation table
+Query
+Mode
+Top-1 Result
+Success
+black shoes
+Text
+Nike Running Shoes
+Yes
+running shoes
+Voice
+Adidas Running Shoes
+Yes
+shoe image
+Image
+Nike Running Shoes
+Yes
+order O001
+Text
+O001
+Yes
+
+Students should report at least:
+
+number of test queries;
+number of successful queries;
+success rate;
+examples of incorrect results.
+
+The success rate is
+Success Rate =.(11)Success Rate =.(11)Number of Successful Queries Total Number of Queries
+Success Rate =.(11)
+Success Rate =.(11)
+Report Structure
+The submitted report should contain approximately 10–12 pages.
+Recommended structure:
+
+Introduction;
+Problem Description;
+Requirements Analysis;
+Use Case Model;
+Three-Layer Architecture;
+
+UML Sequence Diagram;
+Python Implementation;
+Multimodal Search Method;
+Experimental Results;
+Discussion;
+Conclusion.
+
+The report should contain screenshots of the Visual Paradigm diagrams and screenshots of the Python program running.
+
+Submission Requirements
+Each student should submit:
+
+PDF report;
+Visual Paradigm project;
+Python source code;
+product dataset;
+sample images;
+README file;
+demonstration results.
+
+The README should explain:
+
+Python version;
+required packages;
+how to run the program;
+project directory structure;
+example commands;
+limitations of the prototype.
+
+Assessment Rubric
+The assignment may be assessed using the following rubric.
+
+Table 4: Assessment rubric
+Component
+Points
+Requirements analysis
+10
+Use Case Diagram
+15
+Three-Layer Architecture
+20
+Sequence Diagram
+10
+Python implementation
+20
+Multimodal search
+10
+Experimental evaluation
+5
+Report quality
+5
+Demonstration
+5
+Total
+100
+
+Important Design Principles
+Students should remember the following principles.
+
+Principle 1: Separate UI from Business Logic
+The UI should not directly access the database.
+
+UI ↛ Database.(12)
+Instead:
+
+UI → Application → Data.(13)
+
+Principle 2: Different Inputs, Common Representation
+Voice, text, and image inputs should eventually be transformed into representations that the retrieval system can process.
+
+{text, voice, image} → query representation.(14)
+
+Principle 3: Retrieval and Ranking Are Different
+Retrieval generates candidate products:
+
+
+
+Ranking orders the candidates:
+C(q).
+
+
+Rank(C(q)).
+
+Students should not treat these two operations as the same.
+
+Principle 4: Start Simple
+The first implementation does not need a sophisticated AI model.
+A valid progression is:
+
+Keyword Matching → Embedding Search → Multimodal Retrieval.
+The objective is to understand the architecture before optimizing the AI component.
+
+Final System View
+The complete conceptual system is:
+
+CUSTOMER
+|
++-----------------++
+|
+|
+|
+TEXT
+VOICE
+IMAGE
+|
+|
+|
+|
+v
+|
+|
+Speech-to-Text
+|
+|
+|
+|
++-----------------++
+| v
+QUERY UNDERSTANDING
+| v
+QUERY REPRESENTATION
+| v
+++
+|RETRIEVAL|
+++
+|
++--------------++
+||
+Product DatabaseVector Index
+||
++--------------++
+| v
+CANDIDATES
+| v
+RANKING
+| v
+SEARCH RESULTS
+| v
+CUSTOMER
+
+The central lesson of Assignment 05 is that an AI-enabled e-commerce system is not only an AI model. It is a complete software system in which:
+
+User Interface → AI/Application Logic → DataUser Interface → AI/Application Logic → Data(15)
+User Interface → AI/Application Logic → Data
+User Interface → AI/Application Logic → Data
+and multimodal input is transformed into a unified search process.

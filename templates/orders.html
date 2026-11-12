@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block title %}Your orders | Tem Shop{% endblock %}
+{% block content %}
+<main class="page-main">
+  <section class="page-heading"><p class="eyebrow">THE GOOD THINGS YOU FOUND</p><h1>Your orders</h1></section>
+  {% if orders %}
+    <div class="order-list">
+    {% for order in orders %}
+      <article class="order-card">
+        <div class="order-heading"><div><p class="eyebrow">ORDER #{{ order.order_id }}</p><h2>{{ order.order_date }}</h2></div><span class="order-status">{{ order.status }}</span></div>
+        <ul>{% for item in order["items"] %}<li>{{ item.name }} <span>× {{ item.quantity }}</span><strong>${{ '%.2f'|format(item.line_total) }}</strong></li>{% endfor %}</ul>
+        <div class="order-meta"><span>{{ order.payment_method|title }} · {{ order.payment_status }}</span><span>{{ order.shipping_method }} · est. {{ order.estimated_delivery }}</span><strong>Total ${{ '%.2f'|format(order.total_amount) }}</strong></div>
+      </article>
+    {% endfor %}
+    </div>
+  {% else %}<div class="empty-state"><h2>No orders just yet.</h2><p>Your placed orders will show up here.</p><a href="{{ url_for('home') }}">Shop the collection</a></div>{% endif %}
+  {% if searches %}
+  <section class="history-section"><p class="eyebrow">RECENT SEARCHES</p><ul>{% for search in searches %}<li><span class="search-type">{{ search.query_type|title }}</span> {{ search.query_text }} <time>{{ search.created_at }}</time></li>{% endfor %}</ul></section>
+  {% endif %}
+</main>
+{% endblock %}

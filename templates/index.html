@@ -1,0 +1,85 @@
+{% extends "base.html" %}
+{% block title %}Tem Shop | Find your next GOLD{% endblock %}
+{% block content %}
+<main>
+  <section class="intro" aria-labelledby="page-title">
+    <div class="intro-copy">
+      <h1 id="page-title">Find your<br><em class="gold-heading">next GOLD.</em></h1>
+      <p class="intro-text">Good things for getting out, staying in, and everything between.</p>
+    </div>
+    <div class="intro-stamp" aria-hidden="true"><span>USELESS SHIT<br>FOR YOUR<br>EVERY DAY</span><b>✳</b></div>
+    <form class="search-panel" action="{{ url_for('home') }}" method="get" role="search">
+      <div class="search-tabs" aria-label="Search mode">
+        <button class="mode-button {{ 'active' if mode != 'image' else '' }}" type="button" data-mode="text" aria-pressed="{{ 'true' if mode != 'image' else 'false' }}">Keyword</button>
+        <button class="mode-button {{ 'active' if mode == 'voice' else '' }}" type="button" data-mode="voice" aria-pressed="{{ 'true' if mode == 'voice' else 'false' }}">Voice search</button>
+      </div>
+      <div class="search-row">
+        <span class="search-icon" aria-hidden="true">⌕</span>
+        <label class="visually-hidden" for="search-query">Search products</label>
+        <input id="search-query" name="q" type="search" value="{{ query }}" placeholder="Try “black running shoes”" autocomplete="off">
+        <input id="search-mode" type="hidden" name="mode" value="{{ mode if mode == 'voice' else 'text' }}">
+        <button class="voice-button" type="button" id="voice-button" aria-label="Start voice search">🎙</button>
+        <button class="submit-button" type="submit">Search <span aria-hidden="true">↗</span></button>
+      </div>
+      <div class="filter-row">
+        <label>Category
+          <select name="category">
+            <option value="">All categories</option>
+            {% for category in categories %}
+            <option value="{{ category.category_id }}" {{ 'selected' if filters.category_id == category.category_id else '' }}>{{ category.name }}</option>
+            {% endfor %}
+          </select>
+        </label>
+        <label>Min $ <input name="min_price" type="number" min="0" step="0.01" value="{{ request.values.get('min_price', '') }}" placeholder="0"></label>
+        <label>Max $ <input name="max_price" type="number" min="0" step="0.01" value="{{ request.values.get('max_price', '') }}" placeholder="Any"></label>
+        <label class="stock-filter"><input name="in_stock" type="checkbox" value="1" {{ 'checked' if filters.in_stock else '' }}> In stock</label>
+      </div>
+      <p class="mode-hint" id="mode-hint">{% if mode == 'voice' %}Use the microphone or enter a voice transcript.{% elif mode == 'image' %}Ranked by visual color similarity.{% else %}Search by product, color, or category.{% endif %}</p>
+    </form>
+  </section>
+
+  <form class="image-search-panel" action="{{ url_for('image_search') }}" method="post" enctype="multipart/form-data">
+    <div><p class="eyebrow">SHOP BY IMAGE</p><p>Upload an image to find products with similar colors.</p></div>
+    <label class="file-picker">Choose image <input type="file" name="image" accept="image/*" required></label>
+    <input type="hidden" name="category" value="{{ filters.category_id or '' }}">
+    <input type="hidden" name="min_price" value="{{ request.values.get('min_price', '') }}">
+    <input type="hidden" name="max_price" value="{{ request.values.get('max_price', '') }}">
+    <input type="hidden" name="in_stock" value="{{ '1' if filters.in_stock else '' }}">
+    <button class="submit-button" type="submit">Find similar</button>
+  </form>
+
+  <section class="catalog" id="catalog" aria-labelledby="catalog-title">
+    <div class="catalog-heading">
+      <div>
+        <p class="eyebrow">A FEW GOOD THINGS</p>
+        <h2 id="catalog-title">{{ 'Visual matches' if mode == 'image' else 'Search results' if query else 'The collection' }}</h2>
+      </div>
+      <p class="result-count">{{ results|length }} {{ 'found' if query or mode == 'image' else 'pieces' }} <span>·</span> sorted by relevance</p>
+    </div>
+    {% if image_url %}<p class="upload-preview">Matching against <img src="{{ url_for('static', filename=image_url) }}" alt="Uploaded search image"></p>{% endif %}
+    {% if results %}
+    <div class="product-grid">
+      {% for product, score in results %}
+      <article class="product-card" data-product-id="{{ product.id }}">
+        <a class="product-link" href="{{ url_for('product_detail', product_id=product.id) }}" aria-label="View {{ product.name }}">
+        <div class="product-visual visual-{{ loop.index0 % 6 }}">
+          <img src="{{ url_for('static', filename=product.image) }}" alt="{{ product.name }}">
+          {% if score is not none %}
+            <span class="match-score">{% if mode == 'image' %}{{ '%.0f'|format(score * 100) }}% visual match{% else %}Match {{ score }}{% endif %}</span>
+          {% endif %}
+        </div>
+        </a>
+        <div class="product-info">
+          <div class="product-title-row"><h3><a class="product-name-link" href="{{ url_for('product_detail', product_id=product.id) }}">{{ product.name }}</a></h3><span class="price">${{ '%.2f'|format(product.price) }}</span></div>
+          <p>{{ product.color }} <span>·</span> {{ product.category }} <span>·</span> {{ product.stock }} in stock</p>
+          <a class="product-view-link" href="{{ url_for('product_detail', product_id=product.id) }}">View product <span aria-hidden="true">↗</span></a>
+        </div>
+      </article>
+      {% endfor %}
+    </div>
+    {% else %}
+    <div class="empty-state"><span aria-hidden="true">⌕</span><h3>No matches this time.</h3><p>Try a broader search, like a color or category.</p><a href="{{ url_for('home') }}">Back to the collection</a></div>
+    {% endif %}
+  </section>
+</main>
+{% endblock %}

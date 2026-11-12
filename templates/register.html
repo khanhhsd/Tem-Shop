@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block title %}Create account | Tem Shop{% endblock %}
+{% block content %}
+<main class="page-main">
+  <section class="form-card">
+    <p class="eyebrow">JOIN Tem Shop</p><h1>Create account</h1>
+    <form method="post" action="{{ url_for('register') }}">
+      <label>Name<input name="name" autocomplete="name" required maxlength="120"></label>
+      <label>Email<input type="email" name="email" autocomplete="email" required maxlength="254"></label>
+      <label>Password<input type="password" name="password" autocomplete="new-password" minlength="8" required></label>
+      <label>Phone <span class="optional">(optional)</span><input name="phone" autocomplete="tel" maxlength="40"></label>
+      <label>Address <span class="optional">(optional)</span><input name="address" autocomplete="street-address" maxlength="250"></label>
+      <button class="submit-button" type="submit">Create account</button>
+    </form>
+    <p class="form-note">Already have an account? <a class="inline-link" href="{{ url_for('login') }}">Log in</a></p>
+  </section>
+</main>
+{% endblock %}

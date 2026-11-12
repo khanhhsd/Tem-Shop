@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block title %}Log in | Tem Shop{% endblock %}
+{% block content %}
+<main class="page-main">
+  <section class="form-card">
+    <p class="eyebrow">WELCOME BACK</p><h1>Log in</h1>
+    <form method="post" action="{{ url_for('login', next=request.args.get('next', '')) }}">
+      <label>Email<input type="email" name="email" autocomplete="email" required></label>
+      <label>Password<input type="password" name="password" autocomplete="current-password" required></label>
+      <button class="submit-button" type="submit">Log in</button>
+    </form>
+    <p class="form-note">New here? <a class="inline-link" href="{{ url_for('register') }}">Create an account</a></p>
+  </section>
+</main>
+{% endblock %}

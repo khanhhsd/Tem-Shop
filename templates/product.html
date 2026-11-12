@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block title %}{{ product.name }} | Tem Shop{% endblock %}
+{% block content %}
+<main class="page-main product-page">
+  <nav class="breadcrumbs" aria-label="Breadcrumb"><a href="{{ url_for('home') }}">Shop</a><span> / </span>{{ product.category }}</nav>
+  <article class="product-detail">
+    <div class="product-detail-image"><img src="{{ url_for('static', filename=product.image) }}" alt="{{ product.name }}"></div>
+    <div class="product-detail-info">
+      <p class="eyebrow">{{ product.category|upper }} · {{ product.color|upper }}</p>
+      <h1>{{ product.name }}</h1>
+      <p class="product-detail-price">${{ '%.2f'|format(product.price) }}</p>
+      <p class="product-description">{{ product.description }}</p>
+      <p class="product-stock">{{ product.stock }} in stock</p>
+      {% if current_customer %}
+      <form class="add-form product-add-form" action="{{ url_for('cart_add', product_id=product.id) }}" method="post">
+        <label for="quantity-{{ product.id }}">Quantity</label>
+        <input id="quantity-{{ product.id }}" name="quantity" type="number" min="1" max="{{ product.stock }}" value="1" {{ 'disabled' if not product.stock }}>
+        <button type="submit" {{ 'disabled' if not product.stock }}>Add to cart</button>
+      </form>
+      {% else %}
+      <a class="submit-button product-login-link" href="{{ url_for('login', next=url_for('product_detail', product_id=product.id)) }}">Log in to add to cart</a>
+      {% endif %}
+      <a class="inline-link back-to-shop" href="{{ url_for('home') }}">← Continue shopping</a>
+    </div>
+  </article>
+</main>
+{% endblock %}

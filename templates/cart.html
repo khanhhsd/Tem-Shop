@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block title %}Your cart | Tem Shop{% endblock %}
+{% block content %}
+<main class="page-main">
+  <section class="page-heading"><p class="eyebrow">YOUR EVERYDAY FINDS</p><h1>Your cart</h1></section>
+  {% if cart["items"] %}
+  <div class="cart-layout">
+    <div class="cart-items">
+      {% for item in cart["items"] %}
+      <article class="cart-item">
+        <img src="{{ url_for('static', filename=item.image) }}" alt="{{ item.name }}">
+        <div class="cart-item-detail"><h2>{{ item.name }}</h2><p>{{ item.color }} · {{ item.category }}</p><strong>${{ '%.2f'|format(item.unit_price) }}</strong></div>
+        <form class="quantity-form" action="{{ url_for('cart_update', product_id=item.product_id) }}" method="post">
+          <label>Qty <input type="number" name="quantity" min="1" max="{{ item.stock }}" value="{{ item.quantity }}" required></label>
+          <button type="submit">Update</button>
+        </form>
+        <form action="{{ url_for('cart_remove', product_id=item.product_id) }}" method="post"><button class="text-button" type="submit">Remove</button></form>
+      </article>
+      {% endfor %}
+    </div>
+    <aside class="summary-card"><h2>Order summary</h2><p><span>Subtotal</span><strong>${{ '%.2f'|format(cart.total) }}</strong></p><p><span>Shipping</span><strong>Free</strong></p><p class="summary-total"><span>Total</span><strong>${{ '%.2f'|format(cart.total) }}</strong></p><a class="submit-button button-link" href="{{ url_for('checkout') }}">Continue to checkout</a></aside>
+  </div>
+  {% else %}<div class="empty-state"><h2>Your cart is empty.</h2><p>Find something useful for your every day.</p><a href="{{ url_for('home') }}">Explore the collection</a></div>{% endif %}
+</main>
+{% endblock %}
